@@ -1,6 +1,5 @@
-
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 
 from drf_spectacular.views import (
     SpectacularAPIView,
@@ -10,6 +9,9 @@ from drf_spectacular.views import (
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+
+    # API
+    path("api/", include("accounts.urls")),
 
     # OpenAPI schema
     path(

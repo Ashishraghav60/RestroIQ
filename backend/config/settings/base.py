@@ -1,6 +1,7 @@
+from datetime import timedelta
+from pathlib import Path
 
 import environ
-from pathlib import Path
 
 # --------------------------------------------------
 # BASE DIRECTORY
@@ -47,11 +48,12 @@ INSTALLED_APPS = [
 
     # Third-party applications
     "rest_framework",
+    "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
     "django_filters",
     "drf_spectacular",
 
-     # Local apps
+    # Local apps
     "accounts",
     "organizations",
     "memberships",
@@ -190,6 +192,21 @@ REST_FRAMEWORK = {
 }
 
 # --------------------------------------------------
+# JWT AUTHENTICATION
+# --------------------------------------------------
+
+SIMPLE_JWT = {
+    # Short-lived access token limits damage if one leaks.
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    # Every refresh issues a new refresh token and blacklists the old one.
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": True,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
+
+# --------------------------------------------------
 # API DOCUMENTATION
 # --------------------------------------------------
 
@@ -209,5 +226,8 @@ CORS_ALLOWED_ORIGINS = env.list(
     default=["http://localhost:5173"],
 )
 
-# Custom User Model
+# --------------------------------------------------
+# CUSTOM USER MODEL
+# --------------------------------------------------
+
 AUTH_USER_MODEL = "accounts.User"
