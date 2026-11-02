@@ -3,6 +3,8 @@ import uuid
 from django.core.exceptions import ValidationError
 from django.db import models
 
+from .validators import validate_currency_code, validate_timezone
+
 
 class Organization(models.Model):
 
@@ -34,11 +36,13 @@ class Organization(models.Model):
     default_currency = models.CharField(
         max_length=3,
         default="INR",
+        validators=[validate_currency_code],
     )
 
     timezone = models.CharField(
         max_length=50,
         default="Asia/Kolkata",
+        validators=[validate_timezone],
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -219,6 +223,7 @@ class Branch(models.Model):
     timezone = models.CharField(
         max_length=50,
         blank=True,
+        validators=[validate_timezone],
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
