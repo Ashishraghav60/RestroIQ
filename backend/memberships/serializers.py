@@ -34,3 +34,20 @@ class MembershipSerializer(serializers.ModelSerializer):
             "branches",
         )
         read_only_fields = fields
+
+
+class AcceptInvitationSerializer(serializers.Serializer):
+    token = serializers.CharField(max_length=200)
+    # Only needed when the person has no account yet.
+    password = serializers.CharField(
+        write_only=True,
+        required=False,
+        trim_whitespace=False,
+        max_length=128,
+    )
+    first_name = serializers.CharField(
+        required=False, allow_blank=True, max_length=30
+    )
+    last_name = serializers.CharField(
+        required=False, allow_blank=True, max_length=30
+    )

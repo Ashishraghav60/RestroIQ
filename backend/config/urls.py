@@ -12,6 +12,7 @@ urlpatterns = [
 
     # API
     path("api/", include("accounts.urls")),
+    path("api/", include("memberships.urls")),
 
     # OpenAPI schema
     path(
