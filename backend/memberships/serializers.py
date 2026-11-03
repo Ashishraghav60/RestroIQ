@@ -84,3 +84,19 @@ class MemberSerializer(serializers.ModelSerializer):
             "created_at",
         )
         read_only_fields = fields
+
+
+class UpdateMemberSerializer(serializers.Serializer):
+    role = serializers.ChoiceField(
+        choices=Membership.Role.choices, required=False
+    )
+    status = serializers.ChoiceField(
+        choices=Membership.Status.choices, required=False
+    )
+
+    def validate(self, attrs):
+        if not attrs:
+            raise serializers.ValidationError(
+                "Provide at least one of: role, status."
+            )
+        return attrs

@@ -9,13 +9,16 @@ from .invitation_service import create_invitation
 from .member_service import (
     list_members,
     list_pending_invitations,
+    remove_member,
     revoke_invitation,
+    update_member,
 )
 from .serializers import (
     AcceptInvitationSerializer,
     CreateInvitationSerializer,
     InvitationSerializer,
     MemberSerializer,
+    UpdateMemberSerializer,
 )
 from .services import InvitationError, accept_invitation
 
@@ -139,3 +142,34 @@ class MemberListView(APIView):
             user=request.user, organization_id=organization_id
         )
         return Response(MemberSerializer(members, many=True).data)
+
+
+class MemberDetailView(APIView):
+    """PATCH changes a member's role or status. DELETE removes them."""
+
+    @extend_schema(
+        request=UpdateMemberSerializer,
+        responses=MemberSerializer,
+    )
+    def patch(self, request, organization_id, membership_id):
+        serializer = UpdateMemberSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        member = update_member(
+            user=request.user,
+            organization_id=organization_id,
+            membership_id=membership_id,
+            role=data.get("role"),
+            status=data.get("status"),
+        )
+        return Response(MemberSerializer(member).data)
+
+    @extend_schema(responses={204: None})
+    def delete(self, request, organization_id, membership_id):
+        remove_member(
+            user=request.user,
+            organization_id=organization_id,
+            membership_id=membership_id,
+        )
+        return Response(status=204)
