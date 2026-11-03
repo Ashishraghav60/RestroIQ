@@ -6,9 +6,16 @@ from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from rest_framework.views import APIView
 
 from .invitation_service import create_invitation
+from .member_service import (
+    list_members,
+    list_pending_invitations,
+    revoke_invitation,
+)
 from .serializers import (
     AcceptInvitationSerializer,
     CreateInvitationSerializer,
+    InvitationSerializer,
+    MemberSerializer,
 )
 from .services import InvitationError, accept_invitation
 
@@ -63,9 +70,22 @@ class AcceptInvitationView(APIView):
 
 
 class CreateInvitationView(APIView):
-    """Owners and admins invite people into their organization."""
+    """GET lists open invitations; POST creates one. Owners and admins only."""
 
     throttle_classes = [CreateInvitationThrottle]
+
+    def get_throttles(self):
+        # Only creating is rate-limited. Reading the list is not.
+        if self.request.method == "POST":
+            return super().get_throttles()
+        return []
+
+    @extend_schema(responses=InvitationSerializer(many=True))
+    def get(self, request, organization_id):
+        invitations = list_pending_invitations(
+            user=request.user, organization_id=organization_id
+        )
+        return Response(InvitationSerializer(invitations, many=True).data)
 
     @extend_schema(
         request=CreateInvitationSerializer,
@@ -95,3 +115,27 @@ class CreateInvitationView(APIView):
             },
             status=201,
         )
+
+
+class RevokeInvitationView(APIView):
+    """Cancel an open invitation."""
+
+    @extend_schema(responses={204: None})
+    def delete(self, request, organization_id, invitation_id):
+        revoke_invitation(
+            user=request.user,
+            organization_id=organization_id,
+            invitation_id=invitation_id,
+        )
+        return Response(status=204)
+
+
+class MemberListView(APIView):
+    """List the members of an organization. Owners and admins only."""
+
+    @extend_schema(responses=MemberSerializer(many=True))
+    def get(self, request, organization_id):
+        members = list_members(
+            user=request.user, organization_id=organization_id
+        )
+        return Response(MemberSerializer(members, many=True).data)

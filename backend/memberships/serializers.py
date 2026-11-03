@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Membership
+from .models import Invitation, Membership
 
 
 class AssignedBranchSerializer(serializers.Serializer):
@@ -56,3 +56,31 @@ class AcceptInvitationSerializer(serializers.Serializer):
 class CreateInvitationSerializer(serializers.Serializer):
     email = serializers.EmailField(max_length=254)
     role = serializers.ChoiceField(choices=Membership.Role.choices)
+
+
+class InvitationSerializer(serializers.ModelSerializer):
+    """Never includes the token or its hash."""
+
+    class Meta:
+        model = Invitation
+        fields = ("id", "email", "role", "status", "expires_at", "created_at")
+        read_only_fields = fields
+
+
+class MemberSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(source="user.email", read_only=True)
+    first_name = serializers.CharField(source="user.first_name", read_only=True)
+    last_name = serializers.CharField(source="user.last_name", read_only=True)
+
+    class Meta:
+        model = Membership
+        fields = (
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+            "role",
+            "status",
+            "created_at",
+        )
+        read_only_fields = fields
