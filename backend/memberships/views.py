@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from rest_framework.views import APIView
 
+from .emails import send_invitation_email
 from .invitation_service import create_invitation
 from .member_service import (
     list_members,
@@ -106,15 +107,16 @@ class CreateInvitationView(APIView):
             role=data["role"],
         )
 
+        # The secret token only travels by email. It is never returned here.
+        email_sent = send_invitation_email(invitation, raw_token)
+
         return Response(
             {
                 "id": str(invitation.id),
                 "email": invitation.email,
                 "role": invitation.role,
                 "expires_at": invitation.expires_at,
-                # TEMPORARY: shown once because we do not send emails yet.
-                # Once email sending exists, remove this line.
-                "token": raw_token,
+                "email_sent": email_sent,
             },
             status=201,
         )

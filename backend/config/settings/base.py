@@ -207,6 +207,31 @@ SIMPLE_JWT = {
 }
 
 # --------------------------------------------------
+# EMAIL AND LINKS
+# --------------------------------------------------
+
+# In development, emails are printed in the terminal running the server.
+# For real sending, set EMAIL_BACKEND and the EMAIL_* values in .env.
+EMAIL_BACKEND = env(
+    "EMAIL_BACKEND",
+    default="django.core.mail.backends.console.EmailBackend",
+)
+
+EMAIL_HOST = env("EMAIL_HOST", default="localhost")
+EMAIL_PORT = env.int("EMAIL_PORT", default=587)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
+
+DEFAULT_FROM_EMAIL = env(
+    "DEFAULT_FROM_EMAIL",
+    default="RestroIQ <no-reply@restroiq.local>",
+)
+
+# Where links in emails point. This will be the React frontend.
+FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:5173")
+
+# --------------------------------------------------
 # API DOCUMENTATION
 # --------------------------------------------------
 
