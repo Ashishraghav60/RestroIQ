@@ -51,3 +51,8 @@ class AcceptInvitationSerializer(serializers.Serializer):
     last_name = serializers.CharField(
         required=False, allow_blank=True, max_length=30
     )
+
+
+class CreateInvitationSerializer(serializers.Serializer):
+    email = serializers.EmailField(max_length=254)
+    role = serializers.ChoiceField(choices=Membership.Role.choices)
